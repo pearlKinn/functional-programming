@@ -139,14 +139,19 @@ function createCountUpButton(
 // 붕어빵 틀 -> 붕어빵 (객체)
 // 붕어빵틀(생성자함수: 클래스)
 class CountUpButton {
-  #config;
+  #config; // 클래스의 비공개(private) 필드(private field) - 클래스 내부에서만 접근 가능
 
-  constructor(userOptions) {
+  constructor(userOptions) { // 클래스의 생성자(constructor)
+    /* 
+    userOptions 매개변수를 받아 기본 설정(defaultProps)과 사용자 지정 옵션을 결합하여 
+    '#config'에 저장
+    defaultProps에 정의된 기본값은 count: 0, step: 1 
+    */
     this.#config = { ...CountUpButton.defaultProps, ...userOptions };
     this.init();
   }
 
-  init() {
+  init() { // 생성된 인스턴스가 초기화될 때 호출되는 함수
     console.log(this.#config);
   }
 
