@@ -98,7 +98,7 @@ const updateSubjects = subjects
 
 function createCountUpButton(
   container,
-  { count: initialCount = 0, step = 1 } = {}
+  { count: initialCount = 0, step = 1, max = 20 } = {}
 ) {
   if (!container || container.nodeType !== document.ELEMENT_NODE) {
     throw new Error("container는 문서의 요소가 아닙니다.");
@@ -113,8 +113,16 @@ function createCountUpButton(
   };
 
   const handleCountUp = (e) => {
-    count += step;
-    render(count);
+      count += step;
+    
+    if (count >= max) {
+      count = max;
+      render(count);
+      countUpButton.disabled = true
+    }else {
+      render(count);
+    }
+    
   };
 
   countUpButton.setAttribute("type", "button");
@@ -126,12 +134,12 @@ function createCountUpButton(
   container.append(countUpButton);
 }
 
-// const demoContainer = document.getElementById("demo");
+const demoContainer = document.getElementById("demo");
 
-// createCountUpButton(demoContainer);
-// createCountUpButton(demoContainer, { count: 1 });
-// createCountUpButton(demoContainer, { count: 2 });
-// createCountUpButton(demoContainer, { count: 3, step:125 }); 
+createCountUpButton(demoContainer);
+createCountUpButton(demoContainer, { count: 1, max: 14 });
+createCountUpButton(demoContainer, { count: 2 });
+createCountUpButton(demoContainer, { count: 3, step: 5 });
 //* --------------------------------------------------------------------------
 //# JavaScript 프로그래밍 패러다임
 //# → 클래스(class)를 사용해 구현합니다. (참고: https://mzl.la/3QrTKlF)
@@ -141,7 +149,8 @@ function createCountUpButton(
 class CountUpButton {
   #config; // 클래스의 비공개(private) 필드(private field) - 클래스 내부에서만 접근 가능
 
-  constructor(userOptions) { // 클래스의 생성자(constructor)
+  constructor(userOptions) {
+    // 클래스의 생성자(constructor)
     /* 
     userOptions 매개변수를 받아 기본 설정(defaultProps)과 사용자 지정 옵션을 결합하여 
     '#config'에 저장
@@ -151,26 +160,24 @@ class CountUpButton {
     this.init();
   }
 
-  init() { // 생성된 인스턴스가 초기화될 때 호출되는 함수
+  init() {
+    // 생성된 인스턴스가 초기화될 때 호출되는 함수
     console.log(this.#config);
   }
 
   // static field
-  static defaultProps = { 
-    count: 0, 
-    step: 1, 
+  static defaultProps = {
+    count: 0,
+    step: 1,
   };
-  
 }
-
 
 // 새로운(new) 붕어빵(객체: 인스턴스) 생성
 const firstCountUp = new CountUpButton({
   step: 3,
 });
 
-
-const demoContainer = document.getElementById('demo');
+// const demoContainer = document.getElementById('demo');
 
 // demoContainer.append(firstCountUp.render())
 
