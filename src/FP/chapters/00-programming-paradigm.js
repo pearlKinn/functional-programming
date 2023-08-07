@@ -126,17 +126,48 @@ function createCountUpButton(
   container.append(countUpButton);
 }
 
-const demoContainer = document.getElementById("demo");
+// const demoContainer = document.getElementById("demo");
 
-createCountUpButton(demoContainer);
-createCountUpButton(demoContainer, { count: 1 });
-createCountUpButton(demoContainer, { count: 2 });
-createCountUpButton(demoContainer, { count: 3, step:125 }); 
+// createCountUpButton(demoContainer);
+// createCountUpButton(demoContainer, { count: 1 });
+// createCountUpButton(demoContainer, { count: 2 });
+// createCountUpButton(demoContainer, { count: 3, step:125 }); 
 //* --------------------------------------------------------------------------
 //# JavaScript 프로그래밍 패러다임
 //# → 클래스(class)를 사용해 구현합니다. (참고: https://mzl.la/3QrTKlF)
 
-class CountUpButton {}
+// 붕어빵 틀 -> 붕어빵 (객체)
+// 붕어빵틀(생성자함수: 클래스)
+class CountUpButton {
+  #config;
+
+  constructor(userOptions) {
+    this.#config = { ...CountUpButton.defaultProps, ...userOptions };
+    this.init();
+  }
+
+  init() {
+    console.log(this.#config);
+  }
+
+  // static field
+  static defaultProps = { 
+    count: 0, 
+    step: 1, 
+  };
+  
+}
+
+
+// 새로운(new) 붕어빵(객체: 인스턴스) 생성
+const firstCountUp = new CountUpButton({
+  step: 3,
+});
+
+
+const demoContainer = document.getElementById('demo');
+
+// demoContainer.append(firstCountUp.render())
 
 //* --------------------------------------------------------------------------
 //# 웹 컴포넌트(Web Components) API
