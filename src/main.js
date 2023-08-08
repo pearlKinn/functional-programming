@@ -6,6 +6,6 @@
 // --------------------------------------------------------------------------
 
 // 웹 표준 : 파일 확장자가 필요
-// vite 환경 : 파일 확장자 생략 가능 
-import './styles/main.css'
-import './FP/chapters/00-programming-paradigm'
+
+import './styles/main.css' // css는 명시해줘야 한다.
+import './FP/chapters/00-programming-paradigm'// vite 환경 : 파일 확장자 생략 가능 (JS, TS, JSON, Vue)
