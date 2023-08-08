@@ -6,257 +6,207 @@
 //* --------------------------------------------------------------------------
 
 //* --------------------------------------------------------------------------
-// 명령형 프로그래밍
+// JavaScript 프로그래밍 패러다임
+// → 함수(function)를 사용해 구현합니다.
 
-const courses = [
-  {
-    id: 1,
-    name: " imperative programming",
-  },
-  {
-    id: 2,
-    name: "declarative programming ",
-  },
-];
-
-const updateCourses = [...courses];
-// 1. 과정 배열을 순환하여 각 과정 이름의 좌우 공백 제거
-for (let i = 0, l = updateCourses.length; i < l; i++) {
-  const course = { ...updateCourses[i] };
-  course.name = course.name.trim();
-  updateCourses[i] = course;
-}
-
-// 2. 과정 배열을 순환하여 각 과정 이름 대문자화
-for (let i = 0, l = updateCourses.length; i < l; i++) {
-  const course = updateCourses[i];
-  course.name = course.name.toLocaleUpperCase();
-}
-
-// 3. 배열 원소의 name 속성의 공백을 밑줄로 변경하는 기능 추가
-for (let i = 0, l = updateCourses.length; i < l; i++) {
-  const course = updateCourses[i];
-  course.name = course.name.replace(/\s+/g, "_");
-}
-
-// console.log("변형된 데이터\n", updateCourses);
-
-//* --------------------------------------------------------------------------
-// 선언형 프로그래밍
-
-const subjects = [
-  {
-    id: 1,
-    name: " imperative programming",
-  },
-  {
-    id: 2,
-    name: "declarative programming ",
-  },
-];
-
-// 1. 객체 이름(name) 속성 좌우 공백 제거 함수 선언
-function toTrim(object) {
-  const newO = { ...object };
-  newO.name = newO.name.trim();
-  return newO;
-}
-
-// 2. 객체 이름(name) 속성 대문자화 함수 선언
-function toUpperCase(object) {
-  const newO = { ...object };
-  newO.name = newO.name.toLocaleUpperCase();
-  return newO;
-}
-
-function convertSpaceToUnderScore(object) {
-  const newO = { ...object };
-  newO.name = newO.name.replace(/\s+/g, "_");
-  return newO;
-}
-// 3. 과목 이름 "좌우 공백 제거" → "대문자화" 후, 새로운 과목 배열 생성
-/* 
-//^ const updateSubjects = subjects.map((subject) => { 
-//^   const copySubject = toTrim(subject) 
-//^   return copySubject 
-//^  }).map(subject => { 
-//^   const copySubject = toUpperCase(subject) 
-//^   return copySubject 
-//^  });  
- */
-const updateSubjects = subjects
-  .map(toTrim)
-  .map(toUpperCase)
-  .map(convertSpaceToUnderScore);
-// console.log(updateSubjects);
-//* --------------------------------------------------------------------------
-//~ JavaScript 프로그래밍 패러다임
-//~ → 함수(function)를 사용해 구현합니다.
-
-function createCountUpButton(
-  container,
-  { count: initialCount = 0, step = 1, max = 20 } = {} // 매개변수를 받음과 동시에 구조분해할당과 기본 옵션을 합성
+function createCounterButton(
+  element,
+  { count = 0, step = 1, update = null } = {}
 ) {
-  if (!container || container.nodeType !== document.ELEMENT_NODE) {
-    throw new Error("container는 문서의 요소가 아닙니다.");
+  if (!element) {
+    throw new Error("element가 문서에 존재하지 않습니다.");
   }
 
-  let count = initialCount;
-
-  const countUpButton = document.createElement("button");
-
-  const render = (newCount) => {
-    countUpButton.textContent = String(newCount);
+  const setCount = (newCount) => { 
+    // 버튼의 텍스트 내용과 내부 상태를 업데이트하는 함수입니다. setCount 함수는 클로저로서 count 변수에 접근
+    count = newCount;
+    element.textContent = count;
   };
 
-  const stopCount = () => {
-    render(max);
-    countUpButton.disabled = true;
-    alert("최대 값입니다. 더이상 버튼을 누를 수 없습니다");
-  };
+  element.addEventListener("click", () => {
+    setCount(count + step);
+    update?.(count);
+  });
 
-  const handleCountUp = (e) => {
-    count += step;
-    count >= max ? stopCount() : render(count);
-  };
+  setCount(count);
 
-  countUpButton.setAttribute("type", "button");
-  countUpButton.classList.add("CountUpButton");
-  countUpButton.addEventListener("click", handleCountUp);
-
-  render(count);
-
-  container.append(countUpButton);
+  return element;
 }
 
-const demoContainer = document.getElementById("demo");
+const counter = createCounterButton( 
+  document.createElement('button'), 
+  {
+    count: 1,
+    update(count) {//?
+      document.querySelector('.functional').textContent = String(count);
+    }
+  }
+);
+document.getElementById("demo")?.append(counter);
 
-// createCountUpButton(demoContainer);
-// createCountUpButton(demoContainer, { count: 1, max: 14 });
-// createCountUpButton(demoContainer, { count: 2 });
-// createCountUpButton(demoContainer, { count: 3, step: 5 });
+// --------------------------------------------------------------------------
+// JavaScript 프로그래밍 패러다임
+// → 클래스(class)를 사용해 구현합니다. (참고: https://mzl.la/3QrTKlF)
 
-//* --------------------------------------------------------------------------
-//~ JavaScript 프로그래밍 패러다임
-//~ → 클래스(class)를 사용해 구현합니다. (참고: https://mzl.la/3QrTKlF)
+class CounterButton {
+  #element = null;
+  #config = {};
+  #updateCallback = null;
+  #clearIntervalId = 0;
 
-//^ 붕어빵 틀 -> 붕어빵 (객체)
-//^ 붕어빵틀(생성자함수: 클래스)
-// class CountUpButton {
-//   #config; // 클래스의 비공개(private) 필드(private field) - 클래스 내부에서만 접근 가능
-
-//   constructor(userOptions) {
-//     // 클래스의 생성자(constructor) - 클래스를 통해 인스턴스가 생성될 때 1회 실행되는 함수
-//     /*
-//     userOptions 매개변수를 받아 기본 설정(defaultProps)과 사용자 지정 옵션을 결합하여
-//     '#config'에 저장
-//     defaultProps에 정의된 기본값은 count: 0, step: 1
-//     */
-//     this.#config = { ...CountUpButton.defaultProps, ...userOptions };
-//     // 인스턴스 생성 후, 초기화 진행
-//     this.init();
-//   }
-
-//   init() {
-//     // 생성된 인스턴스가 초기화될 때 호출되는 함수
-//     console.log(this.#config);
-//   }
-
-//   //% static field
-//   //% 인스턴스 생성 과정 없이 바로 사용 가능한 클래스 멤버
-//   //% CountUpButton.defaultOptions로 접근가능
-//   //% 여기서는 기본 옵션을 정의하는데 사용 됨
-//   static defaultProps = {
-//     count: 0,
-//     step: 1,
-//   };
-// }
-class CountUpButton {
-  // static field
-  static version = "0.0.1-alpha";
-
-  static defaultProps = {
+  static defaultOptions = {
     count: 0,
     step: 1,
-    max: 10,
   };
 
-  // private field
-  // must be declared
-  #count;
-  #props = {};
-  #button = null;
+  constructor(element, props = {}) {
+    if (!element) {
+      throw new Error("element가 문서에 존재하지 않습니다.");
+    }
 
-  // 라이프 사이클 메서드
-  //~ 생성(constructor) 시점
-  constructor(props) {
-    // console.log("생성 시점");
-    // 클래스가 생성한 인스턴스의 상태
-    this.#count = props.count ?? 0;
-    // 인스턴스가 사용할 데이터 (외부에서 사용자가 전달한 데이터와 내부의 기본 데이터가 병합)
-    this.#props = { ...CountUpButton.defaultProps, ...props };
-    // this.render(); //render 함수가 객체 안에 있어서 this로 접근해야 render메서드를 쓸 수 있다
+    this.#element = element;
+    this.#init(props);
   }
 
-  //~ render (HTMLElement node)
-  render() {
-    const button = document.createElement("button"); //버튼요소 생성
-    button.setAttribute("type", "button"); // 타입 추가
-    button.textContent = String(this.#count); // 숫자 값을 문자 값으로 넣어줌 - 지금은 안바꿔줘도 되지만 타입스크립트에선 필수임!
-    this.#button = button;
-    this.bindEvents();
-    return button;
+  #init(props) {
+    this.setConfig(props);
+    this.#updateDOM();
+    this.#bindEvent();
   }
 
-  //~ 랜더(HTML String)
-  renderHTML() {
-    return `
-    <button type="button">${String(this.#count)}</button>
-    `;
-  }
-
-  bindEvents() {
-    this.#button.addEventListener("click", (e) => {
-      console.log(e.target);
+  #bindEvent() {
+    this.#element.addEventListener("click", () => {
+      this.setCount();
+      this.#updateCallback?.(this.#config.count);
     });
   }
 
-  //~ 마운트(mount) 시점
-  mount(container) {
-    // console.log(typeof this.render()); // object
-    // container?.append?.(this.render()); 앨리먼트로 삽입
-    // console.log(typeof this.renderHTML()); // string
-    container?.insertAdjacentHTML("beforeend", this.renderHTML()); // html 코드로 삽입
+  #updateDOM() {
+    const { count } = this.#config;
+    this.#element.textContent = count;
   }
 
-  //~ 소멸시점
-  unmount() {
-    console.log("소멸시점");
+  setConfig(userConfig = {}) {
+    this.#config = { ...CounterButton.defaultOptions, ...userConfig };
+  }
+
+  setCount(newCount) {
+    const { count, step } = this.#config;
+
+    this.setConfig({
+      ...this.#config,
+      count: newCount ?? count + step,
+    });
+
+    this.#updateDOM();
+  }
+
+  update(callback) {
+    this.#updateCallback = callback;
+  }
+
+  play(fps = 1000 / 1) {
+    this.#clearIntervalId = setInterval(() => {
+      const { count, step } = this.#config;
+      this.setCount(count + step);
+      this.#updateDOM();
+    }, fps);
+  }
+
+  stop() {
+    clearInterval(this.#clearIntervalId);
+  }
+
+  mount(container) {
+    container.append(this.#element);
   }
 }
 
-// 새로운(new) 붕어빵(객체: 인스턴스) 생성
-const firstCountUp = new CountUpButton({ count: 1 });
-const secondCountUp = new CountUpButton({ count: 2, step: 6 });
-const thirdCountUp = new CountUpButton({ count: 3, max: 100 });
+const counterButton = new CounterButton(document.createElement("button"), {
+  count: 2,
+  step: 2,
+});
 
-globalThis.firstCountUp = firstCountUp;
-// firstCountUp.mount(demoContainer);
-// secondCountUp.mount(demoContainer);
-// thirdCountUp.mount(demoContainer);
+// counterButton.play()
+
+counterButton.update((count) => {
+  document.querySelector(".object-oriented").textContent = String(count);
+});
+
+counterButton.mount(document.getElementById("demo"));
 
 //* --------------------------------------------------------------------------
-//# 웹 컴포넌트(Web Components) API
-//# → 웹 컴포넌트를 사용해 구현합니다. (참고: https://mzl.la/3YjFdu9)
+// 웹 컴포넌트(Web Components) API
+// → 웹 컴포넌트를 사용해 구현합니다. (참고: https://mzl.la/3YjFdu9)
 
-class CountUpButtonComponent extends HTMLElement { // extends 해줘야 함
+class CounterButtonComponent extends HTMLElement {
+  #config = {
+    count: 0,
+    step: 1,
+  };
+
   constructor() {
-    // 자신이 상속받은 부모의 생성자를 호출하는 메소드 super()
-    super() // 슈퍼 무조건 명시 안하면 에러
-    this.innerHTML = `
-    <button type="button">9</button>
-    `
+    super();
+    this.#init();
+  }
+
+  #init() {
+    const userConfig = {
+      count: Number(this.getAttribute("count")),
+      step: Number(this.getAttribute("step")) || 1,
+    };
+
+    this.#config = { ...this.#config, ...userConfig };
+  }
+
+  // 버튼 클릭 이벤트를 처리하고, 카운트 값을 증가시키고 컴포넌트를 다시 렌더링하며, update 이벤트를 발생시킵니다
+  /* 
+   dispatchEvent()를 사용하여 "update"라는 이름의 커스텀 이벤트를 발생시키고, this.#config.count 값을 이벤트의 detail 속성에 전달
+   "update" 이벤트를 리스닝하는 다른 요소에서 해당 값을 사용하여 UI나 상태를 업데이트 할 수 있음
+  */
+  #bindEvent(e) {
+    if (e.target.matches("button")) {
+      this.#setCount();
+      this.render();
+      // 참고: https://developer.mozilla.org/ko/docs/Web/Events/Creating_and_triggering_events
+      this.dispatchEvent( //  DOM 요소에 이벤트를 발생시키기 위해 사용되는 메서드
+        new CustomEvent("update", { detail: this.#config.count }) // (update라는 이름의 커스텀 이벤트를 생성 , 이벤트에 전달할 추가 정보를 담고 있는 객체 { detail: ... } 형태로 전달)
+      );
+    }
+  }
+
+  #setCount() {
+    const { count, step } = this.#config;
+    this.#config.count = count + step;
+  }
+
+  connectedCallback() { // 컴포넌트가 DOM에 연결될 때 호출되는 메서드로, 초기 렌더링을 수행하고 클릭 이벤트를 등록
+    // console.log('connected');
+    this.render();
+    this.addEventListener("click", (e) => this.#bindEvent(e));
+  }
+
+  disconnectedCallback() { // 컴포넌트가 DOM에서 연결이 끊어질 때 호출되는 메서드로, 클릭 이벤트를 제거
+    // console.log('disconnected');
+    this.removeEventListener("click", (e) => this.#bindEvent(e));
+  }
+
+  render() {
+    const { count } = this.#config;
+    this.innerHTML = `<button type="button">${count}</button>`;
   }
 }
-// 커스텀 앨리먼트 등록
-customElements.define('count-up-button', CountUpButtonComponent) // 무조건 케밥케이스! (표준)
+
+customElements.define("counter-button", CounterButtonComponent);
+const counterButtonEl = document.querySelector("counter-button");
+/* 
+counterButtonEl.addEventListener("update", ...): counter-button 요소에 대한 update 이벤트를 처리합니다. 
+해당 이벤트가 발생하면 카운트 값이 변경된 내용을 .web-component 클래스를 가진 요소의 텍스트로 업데이트합니다.
+
+이 코드를 실행하면 <counter-button> 요소가 등록되어 웹 컴포넌트로 사용됩니다. 이 버튼을 클릭하면 카운트 값이 증가하며, update 이벤트가 발생하여 다른 요소의 텍스트가 업데이트됩니다.
+*/
+counterButtonEl.addEventListener("update", (e) => { // update -> 사용자 정의 이벤트 사용
+  document.querySelector('.web-component').textContent = String(e.detail);
+});
+
+

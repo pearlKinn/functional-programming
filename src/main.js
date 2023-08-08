@@ -9,3 +9,4 @@
 
 import './styles/main.css' // css는 명시해줘야 한다.
 import './FP/chapters/00-programming-paradigm'// vite 환경 : 파일 확장자 생략 가능 (JS, TS, JSON, Vue)
+// import './FP/chapters/01-functional-principle'
